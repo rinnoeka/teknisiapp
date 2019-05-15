@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+<head>
+    <!--
+    Customize this policy to fit your own app's needs. For more guidance, see:
+        https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+    Some notes:
+        * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+        * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+        * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+            * Enable inline JS: add 'unsafe-inline' to default-src
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * gap://ready file:; style-src 'self' 'unsafe-inline' *; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; img-src * data: 'unsafe-inline'">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    
+    <title>SIPEKAN | Sistem Informasi Pengelolaan Keluhan dan Penugasan</title>
+
+    <!-- onsen ui -->
+    <link rel="stylesheet" href="assets/css/onsenui.css">
+    <link rel="stylesheet" href="assets/css/onsen-css-components.min.css">
+
+    <!-- style created -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- google maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_j9IGxrjLgR2Vwc7VjpMi3H1mTOiXltE"></script>
+    
+</head>
+<body>
+<div id="deviceready"></div>
+<!-- page login -->
+<!-- modal login -->
+<ons-modal id="modalLogin">
+    <ons-navigator id="appNavigator" page="login.html"></ons-navigator>
+</ons-modal>
+
+<!-- page login -->
+<template id="login.html">
+    <ons-page id="login">
+        <ons-toolbar>
+            <div class="center">Log In</div>
+        </ons-toolbar>
+
+        <ons-list>
+            <ons-list-header>
+
+            </ons-list-header>
+            <ons-list-item modifier="nodivider">
+                <ons-input id="txt_username" placeholder="Username" float size="100%"></ons-input>
+            </ons-list-item>
+            <ons-list-item modifier="longdivider">
+                <ons-input type="password" id="txt_password" placeholder="Password" float size="100%"></ons-input>
+            </ons-list-item>
+            <ons-list-item modifier="nodivider">
+                <ons-button modifier="large" ripple onclick="login_process()">Log In</ons-button>
+                <br>
+            </ons-list-item>
+        </ons-list>
+
+        <ons-toast>
+            Anda keluar aplikasi!
+        </ons-toast>
+
+    </ons-page>
+</template>
+
+<!-- page reset password -->
+<template id="reset_password.html">
+    <ons-page id="reset_password">
+        <ons-toolbar>
+            <div class="left"><ons-back-button></ons-back-button></div>
+            <div class="center"></div>
+        </ons-toolbar>
+
+        <ons-list>
+            <ons-list-header>
+                Inputkan email Anda yang sudah terdaftar
+            </ons-list-header>
+            <ons-list-item>
+                <ons-input type="email" id="txt_email" placeholder="Email Aktif" float size="100%"></ons-input>
+            </ons-list-item>
+            <ons-list-item modifier="nodivider">
+                <ons-button ripple onclick="reset_password()">Reset</ons-button>
+            </ons-list-item>
+        </ons-list>
+
+        <script>
+            setTitlePage();
+        </script>
+
+    </ons-page>
+</template>
+<!-- END :: page login -->
+
+<!-- navigator -->
+<ons-navigator id="appNavigator" page="home.html">
+    <ons-page>
+        <ons-splitter id="appSplitter">
+            <ons-splitter-side id="appMenu" page="sidemenus.html" side="left" width="260px" collapse swipeable></ons-splitter-side>
+
+            <ons-splitter-content id="appContent" page="tabbar.html"></ons-splitter-content>
+        </ons-splitter>
+    </ons-page>
+</ons-navigator>
+<!-- end navigator -->
+
+<!-- modal loading -->
+<ons-modal direction="up" id="modalLoading">
+    <div style="text-align: center;">
+        <p><ons-icon icon="md-spinner" size="28px" spin></ons-icon> </p>
+    </div>
+</ons-modal>
+
+<!-- page sidemenus -->
+<template id="sidemenus.html">
+    <ons-page>
+        <div class="sidemenus-profile">
+            <div class="profile-content">
+                <img src="assets/img/foto-profile.png">
+                <p>
+                    <span class="profile-nama"></span>
+                    <span class="profile-bagian"></span>
+                </p>
+            </div>
+        </div>
+        <ons-list>
+            <ons-list-item onclick="fn.loadLink('index.html', '_self')" tappable>
+                <div class="left">
+                    <ons-icon icon="md-home" class="list-item__icon"></ons-icon>
+                </div>
+                <div class="center">
+                    Home
+                </div>
+            </ons-list-item>
+            <ons-list-item onclick="fn.loadView(1)" tappable>
+                <div class="left">
+                    <ons-icon icon="md-ticket-star" class="list-item__icon"></ons-icon>
+                </div>
+                <div class="center">
+                    Task
+                </div>
+            </ons-list-item>
+            <ons-list-item onclick="fn.pushPage({'id': 'profile.html', 'title': 'Profile'})" tappable>
+                <div class="left">
+                    <ons-icon icon="md-face" class="list-item__icon"></ons-icon>
+                </div>
+                <div class="center">
+                    Profile
+                </div>
+            </ons-list-item>
+            <ons-list-item onclick="fn.pushPage({'id': 'log.html', 'title': 'Log Activity'})" tappable>
+                <div class="left">
+                    <ons-icon icon="md-square-right" class="list-item__icon"></ons-icon>
+                </div>
+                <div class="center">
+                    Log
+                </div>
+            </ons-list-item>
+            <ons-list-item onclick="fn.loadLink('http://[domain anda].com/help')" tappable>
+                <div class="left">
+                    <ons-icon icon="md-help-outline" class="list-item__icon"></ons-icon>
+                </div>
+                <div class="center">
+                    Bantuan?
+                </div>
+            </ons-list-item>
+            <ons-list-item onclick="ons.notification.confirm({message: 'Anda yakin ingin keluar?', callback: function(ret){ if(ret){ logout_process(); }}})" tappable>
+                <div class="left">
+                    <ons-icon icon="md-power" class="list-item__icon"></ons-icon>
+                </div>
+                <div class="center">
+                    Keluar
+                </div>
+            </ons-list-item>
+        </ons-list>
+        
+        <script>
+            _profileHelper(window.localStorage.getItem("name_user"), window.localStorage.getItem("divisi"));
+        </script>
+    </ons-page>
+</template>
+<!-- end page -->
+
+<!-- tabbar -->
+<template id="tabbar.html">
+    <ons-page id="tabbar">
+        <ons-toolbar>
+            <div class="left">
+                <ons-toolbar-button onclick="fn.toggleMenu()">
+                    <ons-icon icon="md-menu"></ons-icon>
+                </ons-toolbar-button>
+            </div>
+            <div class="center">Beranda</div>
+        </ons-toolbar>
+
+        <ons-tabbar id="appTabbar" position="auto" swipeable>
+            <ons-tab page="home.html" label="Map" icon="md-navigation" active-icon="md-pin-drop" active></ons-tab>
+            <ons-tab page="task.html" label="Task" icon="md-ticket-star"></ons-tab>
+        </ons-tabbar>
+
+        <script>
+            tabbar();
+        </script>
+    </ons-page>
+</template>
+    
+    
+
+<!-- page home -->
+<template id="home.html">
+    <ons-page id="home">
+        <ons-pull-hook id="pull-hook-home" threshold-height="120px">
+            <div class="pull-hook-content" id="pull-hook-home-content">Pull to refresh</div>
+        </ons-pull-hook>
+
+        <div class="wrap-map">
+            <div id="map"></div>
+        </div>
+        <ons-list id="home_data_list">
+            <!-- data detail penugasan OR data penugasan baru -->
+
+        </ons-list>
+        
+        <ons-alert-dialog id="dialog__penugasan_baru">
+          <div class="alert-dialog-title">Pemberitahuan!</div>
+          <div class="alert-dialog-content" id="dialog__penugasan_baru__content">
+            <!-- content notifikasi -->
+          </div>
+          <div class="alert-dialog-footer">
+            <button class="alert-dialog-button" onclick="ons.notification.confirm({message: 'Lakukan Penugasan Sekarang?', callback: function(ret){ if(ret){ laksanakanPenugasan(); }}})">Laksanakan >></button>
+            <button class="alert-dialog-button" onclick="fn.hideDialog('dialog__penugasan_baru')">Ingatkan nanti !</button>
+          </div>
+        </ons-alert-dialog>
+
+        <script>
+            pullHookHome();
+            
+            /*
+             * tampilkan peta
+             * lat, long data pelanggan
+             */
+            panggilMaps();
+            
+            /*
+             * tampilkan dialog pemberitahuan
+             * ada penugasan baru
+             */
+            notifikasiPenugasanBaru();
+        </script>
+    </ons-page>
+</template>
+<!-- end page -->
+
+<!-- page task -->
+<template id="task.html">
+    <ons-page id="task">
+        <ons-list>
+            <ons-list-header>In Progress</ons-list-header>
+        </ons-list>
+        <div class="pl-5" id="id-task-progress">
+            <!-- data carousel penugasan :: in progress -->
+
+        </div>
+
+        <ons-list>
+            <ons-list-header>In Completes</ons-list-header>
+        </ons-list>
+        <div class="pl-5 mb-10" id="id-task-completes">
+            <!-- data carousel penugasan :: in completes -->
+            
+        </div>
+
+        <script>
+            ons.ready(function() {
+                var carousel = document.addEventListener('postchange', function (event) {
+
+                })
+            });
+            
+            panggilTaskProgress(window.localStorage.getItem("id_user"));
+            panggilTaskCompletes(window.localStorage.getItem("id_user"));
+        </script>
+    </ons-page>
+</template>
+<!-- popover -->
+<ons-popover direction="down" id="popover_task_progress" cancelable animation="fade-md" class="reset-popover hide">
+    <div id="popover_task_progress__target_ids"></div>
+    <ons-list>
+        <ons-list-item tappable onclick="fn.pushPage({'id': 'taskdetail.html', 'title': 'Detail Task', 'popover': 'popover_task_progress', 'target_ids': 'popover_task_progress__target_ids'})">
+            <div class="center"><ons-icon size="22px" icon="md-search"></ons-icon> &nbsp; Lihat Detail</div>
+        </ons-list-item>
+    </ons-list>
+</ons-popover>
+
+<ons-popover direction="down" id="popover_task_completes" cancelable animation="fade-md" class="reset-popover hide">
+    <div id="popover_task_completes__target_ids"></div>
+    <ons-list>
+        <ons-list-item tappable onclick="fn.pushPage({'id': 'taskdetail.html', 'title': 'Detail Task', 'popover': 'popover_task_completes', 'target_ids': 'popover_task_completes__target_ids'})">
+            <div class="center"><ons-icon size="22px" icon="md-search"></ons-icon> &nbsp; Lihat Detail</div>
+        </ons-list-item>
+    </ons-list>
+</ons-popover>
+
+<!-- page task detail -->
+<template id="taskdetail.html">
+    <ons-page id="taskdetail">
+        <ons-toolbar>
+            <div class="left"><ons-back-button></ons-back-button></div>
+            <div class="center"></div>
+        </ons-toolbar>
+
+        <ons-tabbar id="appTabbar" position="auto" swipeable>
+            <ons-tab page="detailpelanggan.html" label="Pelanggan" icon="md-face" active></ons-tab>
+            <ons-tab page="detailtask.html" label="Task" icon="md-ticket-star"></ons-tab>
+            <ons-tab page="laporan.html" label="Laporan" icon="md-card-alert"></ons-tab>
+        </ons-tabbar>
+
+        <script>
+            setTitlePage();
+            tabbar();
+        </script>
+    </ons-page>
+</template>
+
+<!-- page detail pelanggan -->
+<template id="detailpelanggan.html">
+    <ons-page id="detailpelanggan">
+        <ons-list>
+            <ons-list-header>Data Detail Pelanggan</ons-list-header>
+            <ons-list-item>
+                <div class="list-item__title">ID Pelanggan</div>
+                <div class="list-item__subtitle" id="detail_pelanggan__id_pelanggan"><!--#12345--></div>
+            </ons-list-item>
+            <ons-list-item>
+                <div class="list-item__title">Nama</div>
+                <div class="list-item__subtitle" id="detail_pelanggan__nama"><!--Rizki Darmawan--></div>
+            </ons-list-item>
+            <ons-list-item>
+                <div class="list-item__title">No. Telp</div>
+                <div class="list-item__subtitle" id="detail_pelanggan__telepon"><!--+62 896-7020-1736--></div>
+            </ons-list-item>
+            <ons-list-item>
+                <div class="list-item__title">Alamat</div>
+                <div class="list-item__subtitle" id="detail_pelanggan__alamat"><!--Jl. Panggulaan RT 01/03 Sukaraja Kab. Bogor--></div>
+            </ons-list-item>
+            <ons-list-item tappable>
+                <div class="list-item__title">Titik Lokasi</div>
+                <div class="list-item__subtitle" id="detail_pelanggan__titik_lokasi"><!--Jl. Panggulaan RT 01/03 Sukaraja Kab. Bogor--></div>
+            </ons-list-item>
+        </ons-list>
+        
+        <script>
+            panggilDetailPelanggan();
+        </script>
+    </ons-page>
+</template>
+
+<!-- page detail task -->
+<template id="detailtask.html">
+    <ons-page id="detailtask">
+        <ons-list>
+            <ons-list-header>Data Tickets</ons-list-header>
+            <ons-list-item>
+                <div class="list-item__title">ID Ticket</div>
+                <div class="list-item__subtitle" id="detail_tiket__id_tiket"><!--#TC0001--></div>
+            </ons-list-item>
+            <ons-list-item>
+                <div class="list-item__title">Judul</div>
+                <div class="list-item__subtitle" id="detail_tiket__judul"><!--Instalasi Perangkat ke Rumah Bapak Pinus--></div>
+            </ons-list-item>
+            <ons-list-item>
+                <div class="list-item__title">Jenis</div>
+                <div class="list-item__subtitle" id="detail_tiket__jenis_tiket"><!--Masalah yang sama--></div>
+            </ons-list-item>
+            <ons-list-item>
+                <div class="list-item__title">Prioritas</div>
+                <div class="list-item__subtitle" id="detail_tiket__skala_prioritas"></div>
+            </ons-list-item>
+            <ons-list-item>
+                <div class="list-item__title">Deskripsi</div>
+                <div class="list-item__subtitle" id="detail_tiket__deskripsi"><!--Mohon untuk di intstall keperluan Bapak Pinus ini.--></div>
+            </ons-list-item>
+
+            <ons-list-header>Detail Tugas</ons-list-header>
+            <ons-list-item>
+                <div class="list-item__title">Tanggal Pelaksanaan</div>
+                <div class="list-item__subtitle" id="detail_tugas__tgl_jadwal"><!--01 Oktober 2017 08:00 AM--></div>
+            </ons-list-item>
+            <ons-list-item>
+                <div class="list-item__title">Jenis</div>
+                <div class="list-item__subtitle" id="detail_tugas__jenis_tugas"><!--Instalasi Perangkat--></div>
+            </ons-list-item>
+            <ons-list-item>
+                <div class="list-item__title">Catatan</div>
+                <div class="list-item__subtitle" id="detail_tugas__catatan"></div>
+            </ons-list-item>
+        </ons-list>
+        
+        <script>
+            panggilDetailTiket();
+        </script>
+    </ons-page>
+</template>
+
+<!-- page laporan -->
+<template id="laporan.html">
+    <ons-page id="laporan">
+        <ons-list>
+            <ons-list-header>Persentase Penyelesaian</ons-list-header>
+            <ons-list-item modifier="longdivider">
+                <ons-row>
+                    <ons-col width="40px" style="text-align: center; line-height: 31px;">
+                        <ons-icon icon="md-minus-circle-outline"></ons-icon>
+                    </ons-col>
+                    <ons-col>
+                        <ons-range style="width: 100%;" value="10" id="persentase_penyelesaian" ondrag="__showNilaiPersentase()" ondragend="simpanPersentasePenilaian(this.value)" disabled></ons-range>
+                    </ons-col>
+                    <ons-col width="40px" style="text-align: center; line-height: 31px;">
+                        <ons-icon icon="md-plus-circle-o"></ons-icon>
+                    </ons-col>
+                </ons-row>
+                <div style="width: 100%; text-align: center;"><span class="notification notification--material" id="nilai"></span></div>
+            </ons-list-item>
+        </ons-list>
+        <ons-list>
+            <ons-list-header>Laporan Hasil</ons-list-header>
+            <ons-list-item modifier="nodivider">Status</ons-list-item>
+            <ons-list-item tappable>
+                <label class="left">
+                    <ons-radio name="txt_status_hasil" value="selesai" input-id="txt-status-selesai" checked></ons-radio>
+                </label>
+                <label for="txt-status-selesai" class="center">Selesai</label>
+            </ons-list-item>
+            <ons-list-item modifier="nodivider" tappable>
+                <label class="left">
+                    <ons-radio name="txt_status_hasil" value="belum selesai" input-id="txt-status-belum-selesai"></ons-radio>
+                </label>
+                <label for="txt-status-belum-selesai" class="center">Belum Selesai</label>
+            </ons-list-item>
+            <ons-row>
+                <ons-col width="120px">
+                    <ons-list-item modifier="nodivider">Pukul Datang</ons-list-item>
+                    <ons-list-item modifier="nodivider">
+                        <ons-input type="time" name="txt_pukul_datang" input-id="txt-pukul-datang" required></ons-input>
+                    </ons-list-item>
+                </ons-col>
+                <ons-col width="120px">
+                    <ons-list-item modifier="nodivider">Pukul Selesai</ons-list-item>
+                    <ons-list-item modifier="nodivider">
+                        <ons-input type="time" name="txt_pukul_selesai" value="txt_pukul_selesai" input-id="txt-pukul-selesai" required></ons-input>
+                    </ons-list-item>
+                </ons-col>
+            </ons-row>
+            <ons-list-item modifier="nodivider">
+                <textarea class="textarea textarea--transparent" name="txt_keterangan_hasil" id="txt-keterangan-hasil" rows="5" style="width: 100%;" placeholder="Keterangan Hasil.." required></textarea>
+            </ons-list-item>
+        </ons-list>
+        <ons-fab position="bottom right" ripple modifier="mini" onclick="ons.notification.confirm({message: 'Simpan laporan penugasan?', callback: function(ret){ if(ret){ simpanLaporanPenugasan(); }}})" id="btnSimpanLaporan" disabled>
+            <ons-icon icon="md-mail-send" size="21px"></ons-icon>
+        </ons-fab>
+        
+        <script>
+            panggilDetailLaporan();
+        </script>
+    </ons-page>
+</template>
+
+<!-- page kondisi jaringan/koneksi sebelum diperiksa -->
+<template id="kondisi_sebelum_diperiksa.html">
+    <ons-page id="kondisi_sebelum_diperiksa">
+        <ons-toolbar>
+            <div class="left"><ons-back-button></ons-back-button></div>
+            <div class="center"></div>
+            <div class="right">
+                <ons-toolbar-button><ons-icon icon="md-mail-send"></ons-icon></ons-toolbar-button>
+            </div>
+        </ons-toolbar>
+
+        <ons-list>
+            <ons-list-item>
+                <textarea class="textarea textarea--transparent" rows="30" cols="40" placeholder="Kondisi jaringan/koneksi sebelum diperiksa.." autofocus></textarea>
+            </ons-list-item>
+        </ons-list>
+
+        <script>
+            setTitlePage();
+        </script>
+    </ons-page>
+</template>
+
+<!-- page penanganan -->
+<template id="penanganan.html">
+    <ons-page id="penanganan">
+        <ons-toolbar>
+            <div class="left"><ons-back-button></ons-back-button></div>
+            <div class="center"></div>
+            <div class="right">
+                <ons-toolbar-button><ons-icon icon="md-mail-send"></ons-icon></ons-toolbar-button>
+            </div>
+        </ons-toolbar>
+
+        <ons-list>
+            <ons-list-item>
+                <textarea class="textarea textarea--transparent" rows="30" cols="40" placeholder="Penanganan.." autofocus></textarea>
+            </ons-list-item>
+        </ons-list>
+
+        <script>
+            setTitlePage();
+        </script>
+    </ons-page>
+</template>
+
+<!-- page profile -->
+<template id="profile.html">
+    <ons-page id="profile">
+        <ons-toolbar>
+            <div class="left"><ons-back-button></ons-back-button></div>
+            <div class="center"></div>
+        </ons-toolbar>
+
+        <ons-list>
+            <ons-list-header>Profile Anda</ons-list-header>
+            <ons-list-item modifier="nodivider">
+                <div class="frm-foto">
+                    <img src="assets/img/foto-profile.png">
+                </div>
+            </ons-list-item>
+            <ons-list-item modifier="nodivider">
+                <ons-input name="txt_nama" id="txt_nama" placeholder="Nama Lengkap" float size="100%"></ons-input>
+            </ons-list-item>
+            <ons-list-item modifier="nodivider">
+                <ons-input name="txt_username" id="txt_username" placeholder="Username" float size="100%"></ons-input>
+            </ons-list-item>
+        </ons-list>
+
+        <script>
+            setTitlePage();
+            
+            setAkunProfile();
+        </script>
+    </ons-page>
+</template>
+
+<!-- action sheet gambar profile -->
+<ons-action-sheet id="action-sheet-gambar-profile" cancelable title="Foto Profil" class="hide">
+    <ons-action-sheet-button onclick="fn.hideDialog('action-sheet-gambar-profile')" icon="md-image-o">Galeri</ons-action-sheet-button>
+    <ons-action-sheet-button onclick="fn.hideDialog('action-sheet-gambar-profile')" icon="md-camera-add">Kamera</ons-action-sheet-button>
+    <ons-action-sheet-button onclick="fn.hideDialog('action-sheet-gambar-profile')" modifier="destructive" icon="md-delete">Hapus Foto</ons-action-sheet-button>
+</ons-action-sheet>
+
+<!-- page log -->
+<template id="log.html">
+    <ons-page id="log">
+        <ons-toolbar>
+            <div class="left"><ons-back-button></ons-back-button></div>
+            <div class="center"></div>
+        </ons-toolbar>
+
+        <ons-list>
+            <ons-lazy-repeat id="infinite-list"></ons-lazy-repeat>
+        </ons-list>
+
+        <script>
+            setTitlePage();
+            
+            panggilLog();
+        </script>
+    </ons-page>
+</template>
+<!-- end page -->
+    
+<!-- cordova js -->
+<script type="text/javascript" src="cordova.js"></script>
+
+<!-- onsen ui :: js -->
+<script src="assets/js/jquery-3.2.1.min.js"></script>
+<script src="assets/js/onsenui.min.js"></script>
+    
+<!-- moment js
+<script src="assets/js/moment-with-locales.min.js"></script> -->
+
+<!-- res :: root -->
+<script src="res/res.apps.js"></script>
+
+<script type="text/javascript">
+  // Attach csfr data token
+  $.ajaxSetup({
+      data: {
+          'csrf_sipekan' : 'e2c8f39daf233f4248186746f80793b1'
+      }
+  });
+</script>
+    
+<!-- res :: model -->
+<script type="text/javascript" src="res/models/res.model.supermodel.js"></script>
+<script type="text/javascript" src="res/models/res.model.access.js"></script>
+<script type="text/javascript" src="res/models/res.model.penugasan.js"></script>
+    
+<!-- res :: view -->
+<script type="text/javascript" src="res/views/res.view.maps.js"></script>
+<script type="text/javascript" src="res/views/res.view.task.js"></script>
+<script type="text/javascript" src="res/views/res.view.log.js"></script>
+    
+<!-- res :: controller -->
+<script type="text/javascript" src="res/controllers/res.controller.login.js"></script>
+<script type="text/javascript" src="res/controllers/res.controller.main.js"></script>
+    
+<!-- res :: helper -->
+<script type="text/javascript" src="res/herlpers/res.helper.superhelper.js"></script>
+
+</body>
+</html>
