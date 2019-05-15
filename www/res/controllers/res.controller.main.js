@@ -1,6 +1,10 @@
 var watchID = null;
 var timeOut = 30000; //10 minutes (10*60*1000)
 
+/**
+ * fungsi untuk menampilkan map
+ * dengan beberapa titik pelanggan
+ */
 function panggilMaps()
 {
     var promise = dtPelangganAll();
